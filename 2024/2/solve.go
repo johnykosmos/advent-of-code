@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"strings"
+    "fmt"
+    "log"
+    "os"
+    "strings"
     "strconv"
 )
 
@@ -30,32 +30,27 @@ func parseInput(input string) [][]int {
     return numbers
 }
 
-
 func isReportSafe(report []int) bool {
-    var isIncreasing bool
-    if report[0] - report[1] < 0 {
-        isIncreasing = true
-    }else {
-        isIncreasing = false 
-    }
-
+    lastDistance := 0 
     for i := 0; i < len(report) - 1; i++ {
         distance := report[i] - report[i + 1]
+        if distance * lastDistance < 0 {
+            return false
+        }
 
-        if(distance < 0){
-            if !isIncreasing {
-                return false
-            }
+        if distance != 0 {
+            lastDistance = distance
+        }
+        
+        if distance < 0{
             distance *= -1
-        }else if isIncreasing {
+        }
+
+        if distance == 0 || distance > 3 {
             return false
         }
         
-        if(distance <= 0 || distance > 3){
-            return false
-        }
     }
-
     return true 
 }
 
@@ -72,8 +67,39 @@ func part1(input string) int{
     return safeReports
 }
 
+func parseUnsafety(report []int, levelToRemove int) []int{
+    var parsedReport []int
+    for i := 0; i < len(report); i++{
+        if i == levelToRemove {
+            continue 
+        }
+        parsedReport = append(parsedReport, report[i]) 
+    }
+    return parsedReport
+}
+
 func part2(input string) int{
-    return 0
+    parsedReports := parseInput(input)
+
+    var safeReports int = 0
+    for _, report := range parsedReports {
+        isSafe := true
+        if !isReportSafe(report){
+            isSafe = false
+            for i := 0; i < len(report); i++ {
+                parsedUnsafeReport := parseUnsafety(report, i)
+                if isReportSafe(parsedUnsafeReport){
+                    isSafe = true
+                    break
+                }            
+            }
+        }
+        if isSafe {
+            safeReports++
+        }
+    }
+
+    return safeReports
 }
 
 func getInput() string{
