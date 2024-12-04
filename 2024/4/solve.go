@@ -30,17 +30,16 @@ func lookForPattern(dx int, dy int, xOffset int, yOffset int,
 
 		if lines[y][x] != pattern[i] {
 			return 0
-		}    }
+		}    
+    }
     return 1
 }
-
 
 func part1(input string) int{
     pattern := "XMAS"
     lines := strings.Split(input, "\n")
     xmasCount := 0
     for lineIndex, line := range lines {
-        fmt.Println(line)
         for i := 0; i < len(line); i++ {
             for _, direction := range DIRECTIONS {
                 xmasCount += lookForPattern(direction[0], direction[1], i, lineIndex, lines, pattern)
@@ -51,7 +50,26 @@ func part1(input string) int{
 }
 
 func part2(input string) int{
-    return 0
+    pattern := "MAS"
+    lines := strings.Split(input, "\n")
+    xmasCount := 0
+    for lineIndex, line := range lines {
+        for i := 0; i < len(line); i++ {
+            masCount := 0
+            masCount += lookForPattern(1, 1, i, lineIndex, lines, pattern)
+            masCount += lookForPattern(-1, -1, i + 2, lineIndex + 2, lines, pattern)
+            if masCount < 1 {
+                continue 
+            }
+
+            masCount += lookForPattern(-1, 1, i + 2, lineIndex, lines, pattern)
+            masCount += lookForPattern(1, -1, i, lineIndex + 2, lines, pattern)
+            if masCount >= 2 {
+                xmasCount++
+            }
+        }
+    }
+    return xmasCount
 }
 
 func getInput() string{
