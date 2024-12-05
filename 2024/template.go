@@ -4,6 +4,7 @@ import (
     "os"
     "fmt"
     "log"
+    "time"
 )
 
 
@@ -16,7 +17,7 @@ func part2(input string) int{
 }
 
 func getInput() string{
-    content, err := os.ReadFile("input.txt")
+    content, err := os.ReadFile("sample-input.txt")
     if err != nil {
         log.Fatal(err)
     }
@@ -27,6 +28,8 @@ func getInput() string{
 func main(){
     var input string = getInput()
     
-    fmt.Println("The solution for part 1 is:", part1(input))
-    fmt.Println("The solution for part 2 is:", part2(input))
+    start := time.Now()
+    fmt.Printf("The solution for part 1 is: %d\nIn time: %s\n", part1(input), time.Since(start))
+    start = time.Now()
+    fmt.Printf("The solution for part 2 is: %d\nIn time: %s\n", part2(input), time.Since(start))
 }
