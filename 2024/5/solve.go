@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+    "time"
 )
 
 
@@ -39,8 +40,23 @@ func isOrderValid(splitOrder []string, ruleMap map[string][]string) bool {
             return false
         }
     }
-    return true
+    return true 
 }
+
+func sumMiddles(validUpdates [][]string) int{
+    middleSum := 0
+    for _, update := range validUpdates {
+        middleNum, err := strconv.Atoi(update[len(update)/2])
+        if err != nil {
+            log.Fatalf("Could not convert %s to int", update[len(update)/2])
+        }
+        middleSum += middleNum
+    }
+
+    return middleSum
+}
+
+
 func part1(input string) int{
     var validUpdates [][]string
     rules, updateOrder := parseInput(input)
@@ -51,21 +67,43 @@ func part1(input string) int{
             validUpdates = append(validUpdates, splitOrder)
         }
     }
+    return sumMiddles(validUpdates) 
+}
 
-    middleSum := 0
-    for _, update := range validUpdates {
-        middleNum, err := strconv.Atoi(update[len(update)/2])
-        if err != nil {
-            log.Fatalf("Could not convert %s to int", update[len(update)/2])
-        }
-        middleSum += middleNum
-    }
+func fixInvalidUpdates(invalidUpdates []string) {
 
-    return middleSum 
 }
 
 func part2(input string) int{
-    return 0
+    var invalidUpdates [][]string
+    rules, updateOrder := parseInput(input)
+    ruleMap := getHierarchy(rules)
+    for _, order := range updateOrder {
+        splitOrder := strings.Split(order, ",") 
+        if !isOrderValid(splitOrder, ruleMap) {
+            invalidUpdates = append(invalidUpdates, splitOrder)
+        }
+    }
+
+    for _, order := range invalidUpdates {
+        for !isOrderValid(order, ruleMap){
+            for i := 0; i < len(order) - 1; i++ {
+                valid := false
+                for _, rule := range ruleMap[order[i]] {
+                    if order[i+1] == rule {
+                        valid = true
+                        break
+                    }
+                }
+                if !valid {
+                    tmp := order[i]
+                    order[i] = order[i+1]
+                    order[i+1] = tmp        
+                }
+            }
+        }
+    }
+    return sumMiddles(invalidUpdates) 
 }
 
 func getInput() string{
@@ -79,7 +117,9 @@ func getInput() string{
 
 func main(){
     var input string = getInput()
-    
-    fmt.Println("The solution for part 1 is:", part1(input))
-    fmt.Println("The solution for part 2 is:", part2(input))
+
+    start := time.Now()
+    fmt.Printf("The solution for part 1 is: %d\nIn time: %s\n", part1(input), time.Since(start))
+    start = time.Now()
+    fmt.Printf("The solution for part 2 is: %d\nIn time: %s\n", part2(input), time.Since(start))
 }
