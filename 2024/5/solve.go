@@ -70,10 +70,6 @@ func part1(input string) int{
     return sumMiddles(validUpdates) 
 }
 
-func fixInvalidUpdates(invalidUpdates []string) {
-
-}
-
 func part2(input string) int{
     var invalidUpdates [][]string
     rules, updateOrder := parseInput(input)
