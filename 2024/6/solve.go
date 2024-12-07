@@ -28,12 +28,12 @@ var GUARD_DIRECTIONS = map[string]Direction{
 }
 
 func (guard *Guard) rotate(){
-    newdx, newdy := -guard.direction.y, guard.direction.x
+    newdx, newdy := -guard.direction.y, guard.direction.x 
     guard.direction.x, guard.direction.y = newdx, newdy
 }
 
 func (guard *Guard) move(mapGrid []string, xCounter *int) bool {
-    if mapGrid[guard.y][guard.x] != 'X' {
+    if mapGrid[guard.y][guard.x] != 'X' && mapGrid[guard.y][guard.x] != 'O' {
         row := []byte(mapGrid[guard.y])
         row[guard.x] = 'X'
         mapGrid[guard.y] = string(row)
@@ -77,9 +77,51 @@ func part1(input string) int{
     return xCounter 
 }
 
-func part2(input string) int{
-    return 0
+
+func part2(input string) int {
+    xCounter := 0
+    oCounter := 0
+    mapGrid := strings.Split(strings.TrimSpace(input), "\n")
+    obstructionMap := make(map[Direction]bool)
+
+    guard, err := findGuardPosition(mapGrid)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    obstructionMap[Direction{guard.x, guard.y}] = true
+    mapGridCopy := append([]string{}, mapGrid...)
+    for guard.move(mapGrid, &xCounter) {
+        obstruction := Direction{guard.x, guard.y}
+        if obstructionMap[obstruction] {
+            continue
+        }
+        obstructionMap[obstruction] = true
+
+        row := []byte(mapGridCopy[guard.y])
+        row[guard.x] = 'O'
+        mapGridCopy[guard.y] = string(row)
+
+        guardCopy := guard
+        guardCopy.x, guardCopy.y = guard.x-guard.direction.x, guard.y-guard.direction.y
+        visited := make(map[Guard]bool)
+
+        for guardCopy.move(mapGridCopy, &xCounter) {
+            if visited[guardCopy] {
+                oCounter++
+                break
+            }
+            visited[guardCopy] = true
+        }
+
+        row[guard.x] = '.'
+        mapGridCopy[guard.y] = string(row)
+
+    }
+
+    return oCounter
 }
+
 
 func getInput() string{
     content, err := os.ReadFile("input.txt")
