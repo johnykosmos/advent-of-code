@@ -41,33 +41,48 @@ func parseInput(input string) []Equation{
     return equations  
 }
 
-func isEquationValid(equation Equation, total int, index int) bool {
-    if index == len(equation.Numbers) - 1 {
+func isEquationValid(equation Equation, total int, index int, concat bool) bool {
+        if index == len(equation.Numbers) - 1 {
         return total == equation.Total
     }
     
-    if isEquationValid(equation, total + equation.Numbers[index+1], index+1) ||
-        isEquationValid(equation, total * equation.Numbers[index+1], index+1){
+    if isEquationValid(equation, total + equation.Numbers[index+1], index+1, concat) ||
+        isEquationValid(equation, total * equation.Numbers[index+1], index+1, concat){
         return true
+    } else if concat{
+        concatTotal, err := strconv.Atoi((strconv.Itoa(total) + strconv.Itoa(equation.Numbers[index+1])))
+        if err != nil {
+            log.Fatal("Could not convert str to int!")
+        }
+        
+        if isEquationValid(equation, concatTotal, index+1, concat) {
+            return true
+        }
     }
 
     return false
 }
-
 func part1(input string) int{
     sum := 0
     equations := parseInput(input)
     for _, equation := range equations {
-        fmt.Println(equation.Total, equation.Numbers)
-        if isEquationValid(equation, equation.Numbers[0], 0) {
+        if isEquationValid(equation, equation.Numbers[0], 0, false) {
             sum += equation.Total;
         }
     }
     return sum 
 }
 
+
 func part2(input string) int{
-    return 0
+    sum := 0
+    equations := parseInput(input)
+    for _, equation := range equations {
+        if isEquationValid(equation, equation.Numbers[0], 0, true) {
+            sum += equation.Total;
+        }
+    }
+    return sum 
 }
 
 func getInput() string{
