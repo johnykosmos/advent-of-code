@@ -13,13 +13,6 @@ type Cords struct {
     Y int
 }
 
-func absInt(n int) int {
-	if n < 0 {
-		return -n
-	}
-	return n
-}
-
 func checkForAntinodes(antennaGrid []string, antennaCords Cords, 
     antenna rune, antinodeMap map[Cords]bool) { 
         for rowIndex, row := range antennaGrid {
@@ -53,12 +46,46 @@ func part1(input string) int{
             }
         }
     }
-    fmt.Println(antinodeMap)
     return len(antinodeMap)
 }
 
+func checkForAllAntinodes(antennaGrid []string, antennaCords Cords, 
+    antenna rune, antinodeMap map[Cords]bool) { 
+        for rowIndex, row := range antennaGrid {
+            for elementIndex, element := range row {
+                if element == antenna{
+                    xDistance := antennaCords.X - elementIndex
+                    yDistance := antennaCords.Y - rowIndex
+                    if xDistance == 0 || yDistance == 0 {
+                        continue
+                    }
+                    currentX, currentY := antennaCords.X, antennaCords.Y
+                    for {
+                        currentX -= xDistance
+                        currentY -= yDistance
+                        if currentX < 0 || currentX >= len(row) ||
+                        currentY < 0 || currentY >= len(antennaGrid) {
+                            break 
+                        }
+                        antinodeMap[Cords{X: currentX, Y: currentY}] = true 
+                    }
+                }               
+            }
+        }
+}
+
 func part2(input string) int{
-    return 0
+    antennaGrid := strings.Split(strings.TrimSpace(input), "\n")
+    antinodeMap := make(map[Cords]bool)
+    for rowIndex, row := range antennaGrid {
+        for antennaIndex, antenna := range row {
+            if antenna != '.' {
+                antennaCords := Cords{X: antennaIndex, Y: rowIndex}
+                checkForAllAntinodes(antennaGrid, antennaCords, antenna, antinodeMap)     
+            }
+        }
+    }
+    return len(antinodeMap)
 }
 
 func getInput() string{
