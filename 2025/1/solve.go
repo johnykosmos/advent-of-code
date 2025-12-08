@@ -35,12 +35,7 @@ func part1(input string) int{
 	count := 0
 	for _, rotation := range rotationTable {
 		rotatedDial := dial + rotation
-		if (rotatedDial < 0) {
-			dial = (MAXDIAL + rotatedDial) % MAXDIAL
-		} else {
-			dial = rotatedDial % MAXDIAL
-		}
-		fmt.Println(dial)
+		dial = ((rotatedDial % MAXDIAL) + MAXDIAL) % MAXDIAL
 		if (dial == 0) {
 			count++
 		}
@@ -49,23 +44,33 @@ func part1(input string) int{
 }
 
 func part2(input string) int{
-    return 0
+	rotationTable := parseInput(input)
+	dial := 50
+	count := 0
+	for _, rotation := range rotationTable {
+		rotatedDial := dial + rotation
+		dial = ((rotatedDial % MAXDIAL) + MAXDIAL) % MAXDIAL
+		if (dial == 0) {
+			count++
+		}
+	}
+	return count
 }
 
 func getInput() string{
-    content, err := os.ReadFile("sample-input.txt")
-    if err != nil {
-        log.Fatal(err)
-    }
-    return string(content)
+	content, err := os.ReadFile("input.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(content)
 }
 
 
 func main(){
-    var input string = getInput()
-    
-    start := time.Now()
-    fmt.Printf("The solution for part 1 is: %d\nIn time: %s\n", part1(input), time.Since(start))
-    start = time.Now()
-    fmt.Printf("The solution for part 2 is: %d\nIn time: %s\n", part2(input), time.Since(start))
+	var input string = getInput()
+
+	start := time.Now()
+	fmt.Printf("The solution for part 1 is: %d\nIn time: %s\n", part1(input), time.Since(start))
+	start = time.Now()
+	fmt.Printf("The solution for part 2 is: %d\nIn time: %s\n", part2(input), time.Since(start))
 }
