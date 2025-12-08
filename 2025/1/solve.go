@@ -7,6 +7,7 @@ import (
     "time"
 	"strings"
 	"strconv"
+	"math"
 )
 
 const MAXDIAL int = 100 
@@ -21,7 +22,7 @@ func parseInput(input string) []int {
 			log.Fatal(err)
 		}
 		
-		if (direction == 'L') {
+		if direction == 'L' {
 			rotation *= -1
 		}
 		rotationTable[lineid] = rotation
@@ -46,17 +47,24 @@ func part1(input string) int{
 func part2(input string) int{
 	rotationTable := parseInput(input)
 	dial := 50
-	count := 0
+    count := 0
 	for _, rotation := range rotationTable {
-		rotatedDial := dial + rotation
-		dial = ((rotatedDial % MAXDIAL) + MAXDIAL) % MAXDIAL
-		if (dial == 0) {
-			count++
-		}
-	}
-	return count
-}
+		oldPos := float64(dial)
+		dial += rotation
+		newPos := float64(dial)
 
+		var hits float64
+		if rotation > 0 {
+			hits = math.Floor(newPos/float64(MAXDIAL)) - math.Floor(oldPos/float64(MAXDIAL))
+		} else {
+			hits = math.Floor((oldPos-1)/float64(MAXDIAL)) - math.Floor((newPos-1)/float64(MAXDIAL))
+		}
+
+		count += int(math.Abs(hits))
+		dial = ((dial % MAXDIAL) + MAXDIAL) % MAXDIAL
+	}
+    return count
+}
 func getInput() string{
 	content, err := os.ReadFile("input.txt")
 	if err != nil {
