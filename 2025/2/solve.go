@@ -81,11 +81,53 @@ func part1(input string) int {
 }
 
 func part2(input string) int{
-    return 0
+	idPairs := parseInput(input)
+	pairSum := 0
+	for _, pair := range idPairs {
+		patternRangeMax := int(math.Floor(float64(len(pair[1])) / 2))
+		minLimit, err := strconv.Atoi(pair[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		maxLimit, err := strconv.Atoi(pair[1])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		invalidIdMap := make(map[int]bool)
+		//fmt.Println(minLimit, maxLimit)
+		for patLen := 1; patLen <= patternRangeMax; patLen++ {
+			var startNum int
+			var lastNum int
+
+			startNum = customPow10(patLen - 1)
+			lastNum = customPow10(patLen) - 1
+		
+			for i := startNum; i <= lastNum; i++ {
+				realid := i
+				for j := 1; ; j++ {
+					realid += i * customPow10(patLen * j)
+					if realid < minLimit {
+						continue
+					}
+					if realid > maxLimit {
+						break
+					}
+					invalidIdMap[realid] = true
+				}
+			}
+		}
+		for key := range invalidIdMap {
+			pairSum += key
+		}
+	}
+
+	return pairSum
 }
 
 func getInput() string{
-    content, err := os.ReadFile("sample-input.txt")
+    content, err := os.ReadFile("input.txt")
     if err != nil {
         log.Fatal(err)
     }
