@@ -9,33 +9,33 @@ import (
 	"time"
 )
 
-func part1(input string) int{
-	joltSum := 0
-	lines := strings.Split(strings.TrimSpace(input), "\n")
-	for _, line := range lines {
-		for firstDigit := byte('9'); firstDigit > byte('0'); firstDigit-- {
-			firstId := strings.IndexByte(line, firstDigit)
-			if firstId == -1 || firstId == len(line) - 1 {
+func findMaxJoltage(line string, neededBatteries int) int {
+	joltageByte := make([]byte, neededBatteries)
+	for reserveLen := neededBatteries; reserveLen > 0; reserveLen-- {
+		for targetDigit := byte('9'); targetDigit > byte('0'); targetDigit-- {
+			targetId := strings.IndexByte(line, targetDigit)
+			if targetId == -1 || targetId > len(line) - (reserveLen) {
 				continue;
 			}
-			
-			lineRest := line[firstId + 1:]
-			secondDigit := byte('0')
-			for i := 0; i < len(lineRest); i++ {	
-				if secondDigit < lineRest[i] {
-					secondDigit = byte(lineRest[i])
-				}
-			}
-			joltageStr := string([]byte{firstDigit, secondDigit})
-			joltageNum, err := strconv.Atoi(joltageStr)
-			if err != nil {
-				log.Fatal(err)
-			}
-			joltSum += joltageNum
+			joltageByte[neededBatteries - reserveLen] = targetDigit
+			line = line[targetId + 1:]
 			break
 		}
 	}
+	joltageNum, err := strconv.Atoi(string(joltageByte))
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	return joltageNum
+}
+
+func part1(input string) int {
+	joltSum := 0
+	lines := strings.Split(strings.TrimSpace(input), "\n")
+	for _, line := range lines {
+		joltSum += findMaxJoltage(line, 2)
+	}
     return joltSum
 }
 
@@ -43,29 +43,9 @@ func part2(input string) int{
 	joltSum := 0
 	lines := strings.Split(strings.TrimSpace(input), "\n")
 	for _, line := range lines {
-		neededBatteries := 12
-		joltageByte := make([]byte, neededBatteries)
-		for reserveLen := neededBatteries; reserveLen > 0; reserveLen-- {
-			for targetDigit := byte('9'); targetDigit > byte('0'); targetDigit-- {
-				targetId := strings.IndexByte(line, targetDigit)
-				if targetId == -1 || targetId > len(line) - (reserveLen) {
-					continue;
-				}
-				joltageByte[neededBatteries - reserveLen] = targetDigit
-				line = line[targetId + 1:]
-				break
-			}
-		}
-		joltageNum, err := strconv.Atoi(string(joltageByte))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		joltSum += joltageNum
+		joltSum += findMaxJoltage(line, 12)
 	}
-
     return joltSum
-
 }
 
 func getInput() string{
