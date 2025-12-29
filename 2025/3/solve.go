@@ -40,7 +40,32 @@ func part1(input string) int{
 }
 
 func part2(input string) int{
-    return 0
+	joltSum := 0
+	lines := strings.Split(strings.TrimSpace(input), "\n")
+	for _, line := range lines {
+		neededBatteries := 12
+		joltageByte := make([]byte, neededBatteries)
+		for reserveLen := neededBatteries; reserveLen > 0; reserveLen-- {
+			for targetDigit := byte('9'); targetDigit > byte('0'); targetDigit-- {
+				targetId := strings.IndexByte(line, targetDigit)
+				if targetId == -1 || targetId > len(line) - (reserveLen) {
+					continue;
+				}
+				joltageByte[neededBatteries - reserveLen] = targetDigit
+				line = line[targetId + 1:]
+				break
+			}
+		}
+		joltageNum, err := strconv.Atoi(string(joltageByte))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		joltSum += joltageNum
+	}
+
+    return joltSum
+
 }
 
 func getInput() string{
