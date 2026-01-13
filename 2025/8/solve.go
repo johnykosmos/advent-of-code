@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-const n int = 10
-
 type Coords struct {
 	x, y, z int
 }
@@ -76,7 +74,7 @@ func part1(input string) int{
 	// Through n iterations we have to merge all the connections to
 	// get the biggest groups of elements that are connected to each other.
 	// It will be done by checking for the roots of each box.
-	for i := range n {
+	for i := range 1000 {
 		connection := allConnections[i]	
 		box1Root := connection.box1
 		box2Root := connection.box2
@@ -125,7 +123,59 @@ func part1(input string) int{
 }
 
 func part2(input string) int{
-    return 0
+	boxesCords := parseInput(input)	
+
+	// First we have to precompute all possible connections
+	var allConnections []Connection 
+	for i := 0; i < len(boxesCords); i++ {
+		for j:= i + 1; j < len(boxesCords); j++ {
+			allConnections = append(allConnections, 
+			Connection{box1: i, box2: j, distance: boxesCords[i].calculateDistance(boxesCords[j])})	
+		}
+	}
+
+	sort.Slice(allConnections, func(i int, j int) bool {
+		return allConnections[i].distance < allConnections[j].distance
+	})
+
+	// Each element's ids will correspond directely to each box's ids;
+	// and element stored would correspond to where it is connected 
+	boxesConnections := make([]int, len(boxesCords))
+	for i := range len(boxesConnections) {
+		boxesConnections[i] = i
+	}
+
+	// By iterating through all the connections we merge them to
+	// get a single circuit where everything is connected.
+	// It will be done by checking for the roots of each box and remembering
+	// the last connection made.
+	var lastConnection Connection
+	for _, connection := range allConnections {
+		box1Root := connection.box1
+		box2Root := connection.box2
+
+		// Check for the first box's root
+		for box1Root != boxesConnections[box1Root] {
+			box1Root = boxesConnections[box1Root]
+		}
+
+		// Check for the second box's root
+		for box2Root != boxesConnections[box2Root] {
+			box2Root = boxesConnections[box2Root]
+		}
+
+		// If these roots aren't equal we have to assign other box's
+		// root to the first box which will eventually lead to 
+		// building one big group with a single root.
+		if box1Root != box2Root {
+			boxesConnections[box1Root] = box2Root
+			lastConnection = connection
+		}
+	}
+
+	// This time the only thing that interests us are two ids of last connection.
+	result := boxesCords[lastConnection.box1].x * boxesCords[lastConnection.box2].x
+    return result
 }
 
 func getInput() string{
